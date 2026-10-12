@@ -8,8 +8,9 @@
 
 Aplicação fullstack (API Express em camadas + SQLite + frontend Bootstrap com Vanilla JS).
 
-O domínio do projeto será definido na Semana 2.
+**Domínio:** Gerenciamento de serviços de oficina de motos. A modelagem está em [MODELAGEM.md](MODELAGEM.md).
 
 ## Estrutura
 
 - `s1/` — exercícios da Semana 1: os quatro pilares da POO em JavaScript.
+- `s2/` - exercícios da Semana 2: princípios SOLID e Modelagem inicial
