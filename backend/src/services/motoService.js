@@ -1,5 +1,5 @@
-
 import { motoModel } from '../models/motoModel.js';
+import { clienteModel } from '../models/clienteModel.js';
 
 function erro(status, mensagem) {
   const e = new Error(mensagem);
@@ -29,6 +29,10 @@ export const motoService = {
       throw erro(400, 'Todos os campos são obrigatórios.');
     }
 
+    if (!clienteModel.buscarPorId(Number(clienteId))) {
+      throw erro(422, 'O cliente informado não está cadastrado.');
+    }
+
     if (motoModel.existePlaca(placa)) {
       throw erro(409, 'Já existe uma moto cadastrada com essa placa.');
     }
@@ -38,13 +42,21 @@ export const motoService = {
       modelo,
       ano,
       placa,
-      clienteId
+      clienteId: Number(clienteId)
     });
   },
 
   atualizar(id, dados) {
     const motoId = Number(id);
-    const moto = this.buscarPorId(motoId);
+    this.buscarPorId(motoId);
+
+    if (dados.clienteId !== undefined) {
+      const clienteId = Number(dados.clienteId);
+      if (!clienteModel.buscarPorId(clienteId)) {
+        throw erro(422, 'O cliente informado não está cadastrado.');
+      }
+      dados.clienteId = clienteId;
+    }
 
     if (dados.placa) {
       const placaExistente = motoModel.listar().some(
@@ -63,9 +75,7 @@ export const motoService = {
 
   remover(id) {
     const motoId = Number(id);
-
     this.buscarPorId(motoId);
-
     motoModel.remover(motoId);
   }
 };
