@@ -1,57 +1,53 @@
+import { db } from '../db.js';
 
-let motos = [];
-let proximoId = 1;
+const COLUNAS = 'id, marca, modelo, ano, placa, cliente_id AS clienteId';
 
 export const motoModel = {
   listar() {
-    return motos;
+    return db.prepare(`SELECT ${COLUNAS} FROM motos ORDER BY id`).all();
+  },
+
+  listarPorCliente(clienteId) {
+    return db
+      .prepare(`SELECT ${COLUNAS} FROM motos WHERE cliente_id = ? ORDER BY id`)
+      .all(clienteId);
   },
 
   buscarPorId(id) {
-    return motos.find((m) => m.id === id) ?? null;
+    return db
+      .prepare(`SELECT ${COLUNAS} FROM motos WHERE id = ?`)
+      .get(id) ?? null;
   },
 
   existePlaca(placa) {
-    return motos.some(
-      (m) => m.placa.toUpperCase() === placa.toUpperCase()
-    );
+    const linha = db
+      .prepare('SELECT 1 FROM motos WHERE UPPER(placa) = UPPER(?)')
+      .get(placa);
+    return linha !== undefined;
   },
 
   inserir({ marca, modelo, ano, placa, clienteId }) {
-    const novaMoto = {
-      id: proximoId++,
-      marca,
-      modelo,
-      ano,
-      placa: placa.toUpperCase(),
-      clienteId
-    };
-
-    motos.push(novaMoto);
-    return novaMoto;
+    const r = db
+      .prepare('INSERT INTO motos (marca, modelo, ano, placa, cliente_id) VALUES (?, ?, ?, ?, ?)')
+      .run(marca, modelo, Number(ano), placa.toUpperCase(), Number(clienteId));
+    return this.buscarPorId(r.lastInsertRowid);
   },
 
   atualizar(id, dados) {
-    const i = motos.findIndex((m) => m.id === id);
-
-    if (i === -1) return null;
-
-    motos[i] = {
-      ...motos[i],
+    const atual = this.buscarPorId(id);
+    if (!atual) return null;
+    const novo = {
+      ...atual,
       ...dados,
-      placa: dados.placa
-        ? dados.placa.toUpperCase()
-        : motos[i].placa,
-      id
+      placa: dados.placa ? dados.placa.toUpperCase() : atual.placa,
     };
-
-    return motos[i];
+    db.prepare('UPDATE motos SET marca = ?, modelo = ?, ano = ?, placa = ?, cliente_id = ? WHERE id = ?')
+      .run(novo.marca, novo.modelo, Number(novo.ano), novo.placa, Number(novo.clienteId), id);
+    return this.buscarPorId(id);
   },
 
   remover(id) {
-    const antes = motos.length;
-    motos = motos.filter((m) => m.id !== id);
-
-    return motos.length < antes;
-  }
+    const r = db.prepare('DELETE FROM motos WHERE id = ?').run(id);
+    return r.changes > 0;
+  },
 };
