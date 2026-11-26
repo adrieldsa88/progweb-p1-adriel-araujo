@@ -3,8 +3,8 @@
 Sistema web para gerenciamento de oficina de motocicletas, permitindo o cadastro de clientes, controle de frota (motos vinculadas a proprietários) e acompanhamento de ordens de serviço.
 Projeto 1 da disciplina Programação Web (UEPB, 2026.2).
 
-- **Aplicação:** https://SEU-FRONT.vercel.app
-- **API:** https://SEU-SERVICO.onrender.com
+- **Aplicação:** https://progweb-p1-adriel-araujo-frontend-b5gg42o7d-asura-5ed2.vercel.app/
+- **API:** https://progweb-p1-adriel-araujo-motomanager-api.onrender.com
 - **Vídeo de apresentação:** (link)
 
 > A API está no plano grátis do Render: o primeiro acesso pode levar cerca de
