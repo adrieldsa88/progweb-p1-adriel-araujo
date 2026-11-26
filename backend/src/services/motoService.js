@@ -1,5 +1,6 @@
 import { motoModel } from '../models/motoModel.js';
 import { clienteModel } from '../models/clienteModel.js';
+import { ordemServicoModel } from '../models/ordemServicoModel.js';
 
 function erro(status, mensagem) {
   const e = new Error(mensagem);
@@ -14,11 +15,9 @@ export const motoService = {
 
   buscarPorId(id) {
     const moto = motoModel.buscarPorId(Number(id));
-
     if (!moto) {
       throw erro(404, 'Moto não encontrada.');
     }
-
     return moto;
   },
 
@@ -76,6 +75,11 @@ export const motoService = {
   remover(id) {
     const motoId = Number(id);
     this.buscarPorId(motoId);
+
+    if (ordemServicoModel.listarPorMoto(motoId).length > 0) {
+      throw erro(409, 'Moto possui ordens de serviço. Remova as ordens primeiro.');
+    }
+
     motoModel.remover(motoId);
   }
 };

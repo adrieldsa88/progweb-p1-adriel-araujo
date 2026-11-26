@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 
@@ -10,10 +11,28 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
-// Em produção, a origem do front vem da variável CORS_ORIGIN.
-const origens = (process.env.CORS_ORIGIN
-  ?? 'http://localhost:5500,http://127.0.0.1:5500').split(',');
-app.use(cors({ origin: origens }));
+const origensExtras = (process.env.CORS_ORIGIN ?? '')
+  .split(',')
+  .map((origem) => origem.trim())
+  .filter(Boolean);
+
+const origemPermitida = /^https:\/\/progweb-p1-adriel-araujo-frontend(?:-[a-z0-9-]+)?\.vercel\.app$/;
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (
+      !origin ||
+      origemPermitida.test(origin) ||
+      origensExtras.includes(origin) ||
+      origin === 'http://localhost:5500' ||
+      origin === 'http://127.0.0.1:5500'
+    ) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  }
+}));
 
 app.use(express.json());
 app.use(logger);
