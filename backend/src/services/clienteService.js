@@ -1,4 +1,5 @@
 import { clienteModel } from '../models/clienteModel.js';
+import { motoModel } from '../models/motoModel.js';
 
 function erro(status, mensagem) {
   const e = new Error(mensagem);
@@ -13,11 +14,9 @@ export const clienteService = {
 
   buscarPorId(id) {
     const cliente = clienteModel.buscarPorId(Number(id));
-
     if (!cliente) {
       throw erro(404, 'Cliente não encontrado.');
     }
-
     return cliente;
   },
 
@@ -55,6 +54,11 @@ export const clienteService = {
   remover(id) {
     const clienteId = Number(id);
     this.buscarPorId(clienteId);
+
+    if (motoModel.listarPorCliente(clienteId).length > 0) {
+      throw erro(409, 'Cliente possui motos cadastradas. Remova as motos primeiro.');
+    }
+
     clienteModel.remover(clienteId);
   }
 };
